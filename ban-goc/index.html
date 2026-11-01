@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mộc Music - Cửa hàng nhạc cụ dành cho mọi người yêu âm nhạc.">
+  <title>Mộc Music | Nhạc cụ cho mọi cảm hứng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="announcement">
+    <span>Miễn phí giao hàng cho đơn từ 2.000.000đ</span>
+    <span class="announcement-separator">•</span>
+    <span>Bảo hành chính hãng đến 24 tháng</span>
+  </div>
+
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="Về trang chủ Mộc Music">
+      <span class="brand-mark">M</span>
+      <span>MỘC <small>MUSIC</small></span>
+    </a>
+    <nav class="desktop-nav" aria-label="Điều hướng chính">
+      <a href="#home" data-nav="home">Trang chủ</a>
+      <a href="#products" data-nav="products">Sản phẩm</a>
+      <a href="#about" data-nav="about">Về chúng tôi</a>
+      <a href="#admin" data-nav="admin">Quản trị</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-button search-toggle" type="button" aria-label="Tìm kiếm">⌕</button>
+      <button class="account-button" type="button">Tài khoản</button>
+      <button class="cart-button" type="button" aria-label="Mở giỏ hàng">
+        Giỏ hàng <span id="cart-count">0</span>
+      </button>
+      <button class="menu-button" type="button" aria-label="Mở menu">☰</button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" aria-hidden="true">
+    <a href="#home">Trang chủ</a>
+    <a href="#products">Sản phẩm</a>
+    <a href="#about">Về chúng tôi</a>
+    <a href="#admin">Quản trị</a>
+  </div>
+
+  <main id="app"></main>
+
+  <footer class="site-footer">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <a class="brand brand-light" href="#home">
+          <span class="brand-mark">M</span>
+          <span>MỘC <small>MUSIC</small></span>
+        </a>
+        <p>Mang âm nhạc đến gần bạn hơn bằng những nhạc cụ chất lượng và dịch vụ tận tâm.</p>
+      </div>
+      <div>
+        <h4>Khám phá</h4>
+        <a href="#products">Tất cả sản phẩm</a>
+        <a href="#products?category=Guitar">Đàn Guitar</a>
+        <a href="#products?category=Piano">Piano & Keyboard</a>
+        <a href="#products?category=Trống">Trống & Bộ gõ</a>
+      </div>
+      <div>
+        <h4>Hỗ trợ</h4>
+        <a href="#about">Về Mộc Music</a>
+        <a href="#policy">Giao hàng & đổi trả</a>
+        <a href="#policy">Chính sách bảo hành</a>
+        <a href="tel:19001234">Hotline: 1900 1234</a>
+      </div>
+      <div>
+        <h4>Nhận bản tin</h4>
+        <p>Ưu đãi và kiến thức âm nhạc gửi đến bạn mỗi tuần.</p>
+        <form id="newsletter-form" class="newsletter-form">
+          <input type="email" placeholder="Email của bạn" required aria-label="Email nhận bản tin">
+          <button type="submit">Gửi</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Mộc Music. Đồ án website bán nhạc cụ.</span>
+      <span>Thiết kế với tình yêu dành cho âm nhạc ♫</span>
+    </div>
+  </footer>
+
+  <div id="overlay" class="overlay"></div>
+
+  <aside id="cart-drawer" class="drawer" aria-label="Giỏ hàng">
+    <div class="drawer-header">
+      <div>
+        <span class="eyebrow">Đơn hàng của bạn</span>
+        <h2>Giỏ hàng</h2>
+      </div>
+      <button class="close-button" type="button" data-close="cart" aria-label="Đóng giỏ hàng">×</button>
+    </div>
+    <div id="cart-items" class="cart-items"></div>
+    <div id="cart-summary" class="cart-summary"></div>
+  </aside>
+
+  <section id="product-modal" class="modal product-modal" role="dialog" aria-modal="true" aria-label="Chi tiết sản phẩm"></section>
+
+  <section id="account-modal" class="modal account-modal" role="dialog" aria-modal="true" aria-label="Tài khoản">
+    <button class="close-button modal-close" type="button" data-close="modal" aria-label="Đóng">×</button>
+    <div id="account-content"></div>
+  </section>
+
+  <section id="checkout-modal" class="modal checkout-modal" role="dialog" aria-modal="true" aria-label="Thanh toán">
+    <button class="close-button modal-close" type="button" data-close="modal" aria-label="Đóng">×</button>
+    <div id="checkout-content"></div>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
