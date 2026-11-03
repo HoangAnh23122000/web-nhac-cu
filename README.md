@@ -26,6 +26,8 @@ Sau đó mở http://localhost:3000. Nhấn `Ctrl + C` trong cửa sổ lệnh �
 | Quản trị viên | admin@mocmusic.vn | Admin@12345 |
 | Khách hàng | khach@mocmusic.vn | Khach@12345 |
 
+Sau khi chạy `npm run demo` có thêm 5 khách mẫu (ví dụ minhanh@mocmusic.vn), cùng mật khẩu Khach@12345.
+
 Đây là tài khoản để chạy thử. Khi đưa lên mạng phải đặt `NODE_ENV=production` và `ADMIN_PASSWORD`; tài khoản khách mẫu sẽ không được tạo.
 
 ## Các lệnh khác
@@ -33,6 +35,7 @@ Sau đó mở http://localhost:3000. Nhấn `Ctrl + C` trong cửa sổ lệnh �
 ```bash
 npm test        # chạy kiểm thử tự động
 npm run reset   # xóa toàn bộ đơn hàng, tài khoản mới và đưa dữ liệu về ban đầu
+npm run demo    # đưa về ban đầu rồi thêm 5 khách và 14 đơn hàng mẫu để trình bày
 ```
 
 ## Chức năng
@@ -68,6 +71,7 @@ server/
   config.js      Cấu hình
   db.js          Các bảng dữ liệu
   seed.js        Dữ liệu ban đầu
+  demo.js        Dữ liệu demo để trình bày
   auth.js        Phiên đăng nhập, phân quyền
   validate.js    Kiểm tra dữ liệu đầu vào
   orders.js      Nghiệp vụ đơn hàng

@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node server/index.js",
     "reset": "node server/reset.js",
+    "demo": "node server/demo.js",
     "test": "node --test \"test/*.test.js\""
   },
   "dependencies": {

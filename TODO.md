@@ -15,18 +15,18 @@ Muốn tui làm mục nào, bạn chỉ cần nhắn tên mục đó.
 
 ## Việc của bạn (tui không làm thay được)
 
-- [ ] Bấm thử web theo vai trò khách và quản trị, rồi báo lại kết quả
-- [ ] Hỏi giảng viên có yêu cầu gì thêm về chức năng và mẫu báo cáo không
-- [ ] Cho tui biết hạn nộp và ngày bảo vệ
+- [x] Bấm thử web theo vai trò khách và quản trị, rồi báo lại kết quả
+- [x] Hỏi giảng viên có yêu cầu gì thêm về chức năng và mẫu báo cáo không
+- [x] Hạn nộp: 14/11/2026, nộp Group01.zip gồm Group01.docx và mã nguồn
 - [ ] Hiểu và tự giải thích được từng phần để trả lời hội đồng
 - [ ] Sao lưu dự án sang một nơi khác
 
 ## Tui làm được: báo cáo và bảo vệ
 
-- [ ] Viết báo cáo đồ án dạng docs
-- [ ] Vẽ sơ đồ use case, ERD và sơ đồ tuần tự
-- [ ] Lập bảng test case từ các bài kiểm thử đã có
-- [ ] Làm slide thuyết trình
+- [x] Viết báo cáo `bao-cao/Group01.docx` (còn các chỗ tô vàng cần bạn điền)
+- [x] Vẽ sơ đồ use case, ERD và sơ đồ tuần tự
+- [x] Lập bảng test case từ các bài kiểm thử đã có
+- [ ] Làm slide thuyết trình (thầy không yêu cầu)
 - [ ] Viết kịch bản demo từng bước
 - [ ] Giải thích code bằng lời đơn giản, từng file hoặc từng chức năng
 - [ ] Soạn câu hỏi hội đồng hay hỏi và đóng vai hội đồng để bạn tập trả lời
@@ -39,14 +39,14 @@ Muốn tui làm mục nào, bạn chỉ cần nhắn tên mục đó.
 - [ ] Tải ảnh sản phẩm trực tiếp trong trang quản trị
 - [ ] Sửa thông tin cá nhân, đổi mật khẩu, sổ địa chỉ
 - [ ] Điểm riêng của đồ án: nghe thử âm thanh nhạc cụ, hoặc gợi ý nhạc cụ theo trình độ và ngân sách
-- [ ] Dữ liệu demo: đơn hàng và khách hàng mẫu để trang thống kê có số liệu khi trình bày
+- [x] Dữ liệu demo: đơn hàng và khách hàng mẫu (`npm run demo`)
 
 ## Tui làm được nhưng cần bạn cung cấp tài khoản
 
 - [ ] Quên mật khẩu qua email: cần tài khoản gửi email
 - [ ] Thanh toán online bản thử (VNPay hoặc MoMo): cần đăng ký tài khoản sandbox; đồ án hiện chỉ yêu cầu COD nên không cần làm
 - [ ] Đưa web lên Internet: cần tài khoản dịch vụ hosting
-- [ ] Sao lưu code lên GitHub: cần tài khoản GitHub (Git trên máy thì tui làm được ngay khi bạn đồng ý)
+- [x] Sao lưu code lên GitHub
 
 ## Việc tui nên làm tiếp theo
 
