@@ -1,0 +1,6 @@
+# <Mã> — Danh sách việc
+
+Dựa trên: [plan.md](plan.md). Làm lần lượt; mỗi việc xong thì chạy `npm test` và đánh dấu.
+
+- [ ] T1. ... — *xong khi:* ...
+- [ ] T2. ...
