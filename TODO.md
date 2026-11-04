@@ -21,6 +21,34 @@ Muốn tui làm mục nào, bạn chỉ cần nhắn tên mục đó.
 - [ ] Hiểu và tự giải thích được từng phần để trả lời hội đồng
 - [ ] Sao lưu dự án sang một nơi khác
 
+## Việc của bạn khi về nhà (cần máy ở nhà hoặc Word)
+
+Báo cáo `bao-cao/Group01.docx` (còn 22 chỗ tô vàng):
+
+- [ ] Mở bằng Word, chuột phải vào mục lục → **Update Field → Update entire table** để có số trang
+- [ ] Lướt các trang mới xem bố cục: mục 2.11 (Bảng 2.6–2.8, Hình 2.7), mục 3.5 (Hình 3.16–3.24), mục 5.6
+- [ ] Trang bìa: tên trường, khoa, môn học, giảng viên, họ tên – MSSV từng thành viên, lớp, thành phố
+- [ ] Mục 5.1: ghi rõ đã dùng Claude trên claude.ai, Claude Code trong VS Code hay cả hai; gói miễn phí hay trả phí
+- [ ] Bảng 5.3: dán nguyên văn 5 prompt giai đoạn đầu (giao diện, máy chủ và CSDL, quản trị, review, kiểm thử) từ lịch sử trò chuyện **trên máy ở nhà**
+- [ ] Bảng 5.4: thêm lỗi nhóm tự gặp khi làm, hoặc xóa dòng tô vàng cuối bảng
+- [ ] Phụ lục: chèn ảnh chụp các cuộc trò chuyện với Claude (có thể chụp cả phiên làm SDD trong VS Code)
+- [ ] Link Google Drive (2 chỗ): dán link, hoặc xóa dòng nếu chỉ dùng GitHub
+- [ ] Mục 5.2: lý do riêng của nhóm khi chọn Claude (không bắt buộc, không có thì xóa dòng)
+
+Kiểm tra sản phẩm trên máy ở nhà:
+
+- [ ] `git pull` để lấy code mới, rồi `npm test` → phải ra 27/27
+- [ ] `npm run demo` (**lệnh này xóa dữ liệu cũ**), `npm start`, rồi bấm thử chức năng đánh giá:
+  - chưa đăng nhập: xem được đánh giá, có nút "Đăng nhập để đánh giá"
+  - `minhanh@mocmusic.vn` / `Khach@12345` vào Guitar Yamaha F310: sửa được đánh giá
+  - `khach@mocmusic.vn` vào Keyboard Casio (đơn chưa giao): không được đánh giá
+  - `admin@mocmusic.vn` / `Admin@12345` → Quản trị → tab Đánh giá: ẩn, hiện lại
+
+Hiểu quy trình SDD để tự trình bày:
+
+- [ ] Đọc `specs/README.md`, `specs/10-danh-gia-san-pham/spec.md` và `nhat-ky.md`
+- [ ] Đọc kỹ spec Đánh giá: nếu muốn đổi quy tắc nào thì nhắn tui, tui sửa `spec.md` trước rồi mới sửa code (đúng quy trình SDD)
+
 ## Tui làm được: báo cáo và bảo vệ
 
 - [x] Viết báo cáo `bao-cao/Group01.docx` (còn các chỗ tô vàng cần bạn điền)
@@ -36,7 +64,7 @@ Muốn tui làm mục nào, bạn chỉ cần nhắn tên mục đó.
 - [x] Đặc tả cho các chức năng đã có (`specs/01` đến `specs/06`), nối với bài test
 - [x] `CLAUDE.md`: dặn AI luôn làm theo spec
 - [x] Đánh giá sản phẩm: spec → plan → tasks → code và test (làm đúng SDD)
-- [ ] Thêm mục SDD vào báo cáo `Group01.docx`
+- [x] Thêm mục SDD vào báo cáo `Group01.docx` (mục 2.11, 3.5, 5.6; sơ đồ quy trình SDD; cập nhật use case, ERD, kiến trúc)
 
 ## Tui làm được: thêm chức năng (không bắt buộc)
 
@@ -57,7 +85,7 @@ Muốn tui làm mục nào, bạn chỉ cần nhắn tên mục đó.
 
 ## Việc tui nên làm tiếp theo
 
-1. Sửa các lỗi bạn phát hiện khi bấm thử
-2. Viết báo cáo docs
-3. Vẽ sơ đồ và lập bảng test case cho báo cáo
-4. Làm slide và kịch bản demo
+1. Sửa các lỗi bạn phát hiện khi bấm thử ở nhà
+2. Viết kịch bản demo từng bước, có cả chức năng đánh giá và cách trình bày quy trình SDD
+3. Soạn câu hỏi hội đồng hay hỏi (kể cả câu hỏi về SDD và về việc dùng AI) để bạn tập trả lời
+4. Làm slide (thầy không yêu cầu)
