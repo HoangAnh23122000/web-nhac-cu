@@ -2076,3 +2076,176 @@ button[disabled] {
 .checkout-product span {
   overflow-wrap: anywhere;
 }
+
+/* ==== Đánh giá sản phẩm ==== */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.stars {
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.stars-empty {
+  color: var(--line);
+}
+
+.product-rating {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.product-rating span {
+  color: var(--accent);
+}
+
+.rating-line {
+  margin: -10px 0 18px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.reviews {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 2fr;
+  gap: 40px;
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+
+.reviews-score {
+  margin: 8px 0 4px;
+  font-family: "DM Serif Display", serif;
+  font-size: 56px;
+  line-height: 1;
+}
+
+.reviews-score small {
+  color: var(--ink-soft);
+  font-size: 22px;
+}
+
+.reviews-side .stars {
+  font-size: 20px;
+}
+
+.reviews-side .section-title {
+  margin: 8px 0 18px;
+  font-size: 34px;
+}
+
+#review-form {
+  margin-top: 10px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+#review-form h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+/* Ô chọn sao: nút radio thật (dùng được bằng bàn phím), hiển thị bằng ngôi sao */
+.star-input {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+}
+
+.star-input legend {
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.star-input input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.star-input label {
+  color: var(--line);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Tô sao đã chọn và mọi sao đứng trước nó. Khi rê chuột thì tô theo vị trí chuột.
+   Độ ưu tiên tăng dần theo thứ tự: mặc định < đã chọn < đang rê chuột (bỏ tô) < sao dưới chuột. */
+.star-input label:where(input:checked + label, :has(~ input:checked)) {
+  color: var(--accent);
+}
+
+.star-input:hover label {
+  color: var(--line);
+}
+
+.star-input:hover label:is(:hover, :has(~ label:hover)) {
+  color: var(--accent);
+}
+
+.star-input input:focus-visible + label {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.reviews-list {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.review {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.45);
+  overflow-wrap: anywhere;
+}
+
+.review-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.review p {
+  margin: 8px 0;
+  font-size: 14px;
+  white-space: pre-line;
+}
+
+.review small {
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.review-comment {
+  max-width: 320px;
+  white-space: pre-line;
+}
+
+@media (max-width: 760px) {
+  .reviews {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}

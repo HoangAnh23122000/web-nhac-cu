@@ -8,6 +8,7 @@ const { catalogRoutes } = require("./routes/catalog");
 const authRoutes = require("./routes/auth");
 const orderRoutes = require("./routes/orders");
 const adminRoutes = require("./routes/admin");
+const reviewRoutes = require("./routes/reviews");
 
 function createApp(db, options = {}) {
   const app = express();
@@ -29,6 +30,7 @@ function createApp(db, options = {}) {
   app.use(loadUser(db));
 
   app.use("/api", catalogRoutes(db));
+  app.use("/api/products", reviewRoutes(db));
   app.use("/api/auth", authRoutes(db, options));
   app.use("/api/orders", orderRoutes(db));
   app.use("/api/admin", adminRoutes(db));

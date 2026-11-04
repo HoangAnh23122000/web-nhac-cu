@@ -6,6 +6,7 @@ const config = require("./config");
 const { openDb, transaction } = require("./db");
 const { seed } = require("./seed");
 const { createOrder, changeStatus } = require("./orders");
+const { saveReview } = require("./reviews");
 
 if (config.isProduction) {
   console.error("Không chạy dữ liệu demo ở chế độ production.");
@@ -38,6 +39,26 @@ const orders = [
   { email: "ngoclan@mocmusic.vn", items: [["Ukulele Concert Enya Nova U", 1]], status: "Đã hủy", daysAgo: 2 },
   { email: "minhanh@mocmusic.vn", items: [["Guitar Acoustic Yamaha F310", 1], ["Tai Nghe Kiểm Âm Audio-Technica M40x", 1]], status: "Chờ xác nhận", daysAgo: 1 },
   { email: "khach@mocmusic.vn", items: [["Keyboard Casio CT-S300", 1]], status: "Chờ xác nhận", daysAgo: 0 }
+];
+
+// Đánh giá mẫu, chỉ của khách có đơn "Hoàn thành" chứa sản phẩm đó (đúng quy tắc trong spec 10).
+// Đánh giá có hidden: true là tin quảng cáo, được ẩn sẵn để demo chức năng kiểm duyệt.
+const reviews = [
+  { email: "minhanh@mocmusic.vn", product: "Guitar Acoustic Yamaha F310", rating: 5, daysAgo: 25,
+    comment: "Đàn tiếng ấm, phím thấp dễ bấm. Người mới như mình tập 2 tuần đã đánh được vài bài." },
+  { email: "quocbao@mocmusic.vn", product: "Piano Điện Roland FP-10", rating: 5, daysAgo: 22,
+    comment: "Phím nặng giống piano cơ, kết nối Bluetooth với ứng dụng học đàn rất tiện." },
+  { email: "quocbao@mocmusic.vn", product: "Tai Nghe Kiểm Âm Audio-Technica M40x", rating: 4, daysAgo: 22,
+    comment: "Âm thanh trung thực, hợp để kiểm âm. Đeo lâu hơi nóng tai." },
+  { email: "thuha@mocmusic.vn", product: "Ukulele Concert Enya Nova U", rating: 4, daysAgo: 20,
+    comment: "Đàn nhẹ, màu đẹp, đi du lịch rất tiện. Âm hơi mỏng hơn ukulele gỗ." },
+  { email: "khach@mocmusic.vn", product: "Cajon Meinl Headliner", rating: 5, daysAgo: 15, comment: "" },
+  { email: "giahuy@mocmusic.vn", product: "Guitar Điện Fender Player Stratocaster", rating: 5, daysAgo: 12,
+    comment: "Cần đàn mượt, tiếng clean rất trong. Cửa hàng đóng gói cẩn thận." },
+  { email: "giahuy@mocmusic.vn", product: "Loa Guitar Marshall MG15G", rating: 1, daysAgo: 10, hidden: true,
+    comment: "Nhắn Zalo 09xx để mua loa giá rẻ hơn cửa hàng 30%!!!" },
+  { email: "ngoclan@mocmusic.vn", product: "Violin Scott Cao STV-017", rating: 4, daysAgo: 8,
+    comment: "Đàn được chỉnh sẵn, có kèm hộp và vĩ. Dây theo đàn hơi chói, mình đã thay dây mới." }
 ];
 
 // Thứ tự trạng thái mà một đơn đi qua để đến trạng thái cuối.
@@ -80,6 +101,15 @@ function seedDemo(db) {
       db.prepare(`UPDATE orders SET created_at = ${ago(order.daysAgo)} WHERE id = ?`).run(created.id);
     });
   }
+
+  for (const review of reviews) {
+    const user = findUser.get(review.email);
+    const product = findProduct.get(review.product);
+    if (!product) throw new Error(`Không tìm thấy sản phẩm "${review.product}" trong dữ liệu ban đầu.`);
+    saveReview(db, { userId: user.id, productId: product.id, rating: review.rating, comment: review.comment });
+    db.prepare(`UPDATE reviews SET created_at = ${ago(review.daysAgo)}, updated_at = ${ago(review.daysAgo)}, is_hidden = ?
+                WHERE user_id = ? AND product_id = ?`).run(review.hidden ? 1 : 0, user.id, product.id);
+  }
 }
 
 for (const suffix of ["", "-wal", "-shm"]) {
@@ -91,5 +121,5 @@ seed(db);
 seedDemo(db);
 db.close();
 
-console.log(`Đã tạo dữ liệu demo: ${customers.length} khách hàng mới và ${orders.length} đơn hàng.`);
+console.log(`Đã tạo dữ liệu demo: ${customers.length} khách hàng mới, ${orders.length} đơn hàng và ${reviews.length} đánh giá.`);
 console.log(`Mật khẩu của các khách demo: ${DEMO_PASSWORD}`);

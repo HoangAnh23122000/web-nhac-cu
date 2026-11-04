@@ -115,6 +115,16 @@ function statusPill(status) {
   return `<span class="status-pill ${STATUS_CLASS[status] || ""}">${esc(status)}</span>`;
 }
 
+// Điểm đánh giá: 4.3 -> "4,3"; sao làm tròn đến sao gần nhất.
+function formatRating(value) {
+  return value.toLocaleString("vi-VN", { maximumFractionDigits: 1 });
+}
+
+function stars(value) {
+  const full = Math.round(value);
+  return `<span class="stars" aria-hidden="true">${"★".repeat(full)}<span class="stars-empty">${"★".repeat(5 - full)}</span></span>`;
+}
+
 function getProduct(productId) {
   return state.products.find((product) => product.id === Number(productId));
 }
@@ -136,6 +146,8 @@ async function loadUser() {
 function updateUserUi() {
   const isAdmin = state.user?.role === "admin";
   document.querySelectorAll("[data-admin-only]").forEach((element) => { element.hidden = !isAdmin; });
+  // Đăng nhập hoặc đăng xuất khi đang xem sản phẩm thì khu vực đánh giá phải đổi theo.
+  loadReviews();
 }
 
 // ==== Giỏ hàng ====
@@ -250,6 +262,7 @@ function productCard(product) {
         <div class="product-meta"><span>${esc(product.brand)}</span><span>${esc(product.category)}</span></div>
         <h3 class="product-name">${esc(product.name)}</h3>
         <div class="product-price">${formatCurrency(product.price)}${product.oldPrice ? `<span class="product-old-price">${formatCurrency(product.oldPrice)}</span>` : ""}</div>
+        ${product.rating.count ? `<div class="product-rating"><span aria-hidden="true">★</span> ${formatRating(product.rating.average)} · ${product.rating.count} đánh giá</div>` : ""}
       </a>
     </article>
   `;
@@ -433,6 +446,7 @@ function productPage(product) {
           <span class="eyebrow">${esc(product.category)} · ${esc(product.brand)}</span>
           <h1>${esc(product.name)}</h1>
           <div class="modal-price">${formatCurrency(product.price)}${product.oldPrice ? `<span class="product-old-price">${formatCurrency(product.oldPrice)}</span>` : ""}</div>
+          <p class="rating-line">${product.rating.count ? `${stars(product.rating.average)} ${formatRating(product.rating.average)}/5 · ${product.rating.count} đánh giá` : "Chưa có đánh giá"}</p>
           <p class="product-description">${esc(product.description)}</p>
           ${specs.length ? `<div class="spec-table">${specs.map(([label, value]) => `<div class="spec-row"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div>` : ""}
           ${product.stock > 0
@@ -441,9 +455,75 @@ function productPage(product) {
           <p class="image-note">Ảnh mang tính minh họa.</p>
         </div>
       </div>
+      <div class="reviews" id="reviews" data-product="${product.id}"><p class="empty-note">Đang tải đánh giá...</p></div>
       ${related.length ? `<div class="related"><div class="section-heading"><div><span class="eyebrow">Cùng danh mục</span><h2 class="section-title">Có thể bạn thích</h2></div></div><div class="product-grid">${related.map(productCard).join("")}</div></div>` : ""}
     </section>
   `;
+}
+
+// ==== Đánh giá sản phẩm (specs/10-danh-gia-san-pham) ====
+function starInput(selected) {
+  return [1, 2, 3, 4, 5].map((value) => `
+    <input type="radio" id="rate-${value}" name="rating" value="${value}" aria-label="${value} sao" required ${value === selected ? "checked" : ""}>
+    <label for="rate-${value}" title="${value} sao" aria-hidden="true">★</label>`).join("");
+}
+
+// Khu vực gửi đánh giá đổi theo người xem: chưa đăng nhập, chưa đủ điều kiện, hoặc được đánh giá.
+function reviewFormArea(me, productId) {
+  if (!me.loggedIn) {
+    return `<p class="form-intro">Bạn đã mua sản phẩm này? Đăng nhập để chia sẻ cảm nhận.</p><button class="button-dark" type="button" data-open-account>Đăng nhập để đánh giá</button>`;
+  }
+  if (!me.canReview) {
+    return `<p class="form-note">Chỉ khách đã nhận hàng mới đánh giá được sản phẩm này.</p>`;
+  }
+  const mine = me.review;
+  return `
+    <form id="review-form" data-product="${productId}">
+      <h3>${mine ? "Đánh giá của bạn" : "Viết đánh giá"}</h3>
+      ${mine?.isHidden ? `<p class="form-note">Đánh giá của bạn đang bị ẩn vì chưa phù hợp với quy định của cửa hàng. Khách khác không thấy đánh giá này.</p>` : ""}
+      <p class="form-error" role="alert"></p>
+      <fieldset class="star-input"><legend>Số sao</legend>${starInput(mine?.rating)}</fieldset>
+      ${field("Nhận xét (không bắt buộc)", `<textarea name="comment" maxlength="1000" placeholder="Âm thanh, độ hoàn thiện, cảm giác khi chơi...">${esc(mine?.comment)}</textarea>`)}
+      <button class="button-primary" type="submit">${mine ? "Cập nhật đánh giá" : "Gửi đánh giá"}</button>
+    </form>`;
+}
+
+function reviewItem(review) {
+  const edited = review.updatedAt !== review.createdAt ? " · đã sửa" : "";
+  return `
+    <article class="review">
+      <div class="review-head"><strong>${esc(review.userName)}</strong>${stars(review.rating)}<span class="visually-hidden">${review.rating} trên 5 sao</span></div>
+      ${review.comment ? `<p>${esc(review.comment)}</p>` : ""}
+      <small>${formatDate(review.updatedAt)}${edited}${review.isMine ? " · Đánh giá của bạn" : ""}</small>
+    </article>`;
+}
+
+function reviewsSection({ summary, reviews, me }, productId) {
+  return `
+    <div class="reviews-side">
+      <span class="eyebrow">Đánh giá từ khách đã mua</span>
+      ${summary.count
+        ? `<div class="reviews-score">${formatRating(summary.average)}<small>/5</small></div>${stars(summary.average)}<p class="form-intro">${summary.count} đánh giá</p>`
+        : `<h2 class="section-title">Chưa có đánh giá</h2>`}
+      ${reviewFormArea(me, productId)}
+    </div>
+    <div class="reviews-list">
+      ${reviews.length ? reviews.map(reviewItem).join("") : `<p class="empty-note">Chưa có đánh giá nào. Khách đã nhận hàng có thể là người đầu tiên chia sẻ cảm nhận.</p>`}
+    </div>`;
+}
+
+// Tải đánh giá sau khi trang đã hiện, để trang không phải chờ.
+async function loadReviews() {
+  const box = $("#reviews");
+  if (!box) return;
+  const productId = box.dataset.product;
+  try {
+    const data = await api(`/products/${productId}/reviews`);
+    // Người dùng có thể đã chuyển sang sản phẩm khác trong lúc chờ.
+    if (box.isConnected) box.innerHTML = reviewsSection(data, productId);
+  } catch (error) {
+    if (box.isConnected) box.innerHTML = `<p class="empty-note">${esc(error.message)}</p>`;
+  }
 }
 
 // ==== Trang giới thiệu và chính sách ====
@@ -477,7 +557,8 @@ const ADMIN_TABS = [
   ["orders", "#admin/orders", "Đơn hàng"],
   ["products", "#admin/products", "Sản phẩm"],
   ["categories", "#admin/categories", "Danh mục"],
-  ["customers", "#admin/customers", "Khách hàng"]
+  ["customers", "#admin/customers", "Khách hàng"],
+  ["reviews", "#admin/reviews", "Đánh giá"]
 ];
 
 function adminShell(tab, content) {
@@ -561,12 +642,31 @@ async function adminCustomers() {
   return `<div class="admin-card"><table class="admin-table"><thead><tr><th>Họ tên</th><th>Email</th><th>Ngày đăng ký</th><th>Số đơn</th></tr></thead><tbody>${customers.map((customer) => `<tr><td>${esc(customer.name)}</td><td>${esc(customer.email)}</td><td>${formatDate(customer.createdAt)}</td><td>${customer.orderCount}</td></tr>`).join("")}</tbody></table></div>`;
 }
 
+async function adminReviews() {
+  const { reviews } = await api("/admin/reviews");
+  if (!reviews.length) return `<div class="admin-card"><p class="empty-note">Chưa có đánh giá nào.</p></div>`;
+  const hiddenCount = reviews.filter((review) => review.isHidden).length;
+  return `
+    <div class="admin-toolbar"><h3>${reviews.length} đánh giá${hiddenCount ? `, ${hiddenCount} đang ẩn` : ""}</h3></div>
+    <div class="admin-card"><table class="admin-table"><thead><tr><th>Sản phẩm</th><th>Khách</th><th>Số sao</th><th>Nhận xét</th><th>Ngày</th><th>Trạng thái</th><th></th></tr></thead><tbody>${reviews.map((review) => `
+      <tr class="${review.isHidden ? "row-muted" : ""}">
+        <td><a href="#product/${review.productId}">${esc(review.productName)}</a></td>
+        <td>${esc(review.userName)}<br><small>${esc(review.userEmail)}</small></td>
+        <td>${stars(review.rating)}<span class="visually-hidden">${review.rating} sao</span></td>
+        <td class="review-comment">${review.comment ? esc(review.comment) : "—"}</td>
+        <td>${formatDate(review.updatedAt)}</td>
+        <td>${review.isHidden ? "Đang ẩn" : "Đang hiện"}</td>
+        <td><button class="link-button" type="button" data-review-hidden="${review.id}" data-hidden="${review.isHidden ? "false" : "true"}">${review.isHidden ? "Hiện lại" : "Ẩn"}</button></td>
+      </tr>`).join("")}</tbody></table></div>`;
+}
+
 const ADMIN_VIEWS = {
   overview: adminOverview,
   orders: adminOrders,
   products: adminProducts,
   categories: adminCategories,
-  customers: adminCustomers
+  customers: adminCustomers,
+  reviews: adminReviews
 };
 
 async function renderAdmin(tab, token) {
@@ -708,6 +808,7 @@ function route({ keepLayers = false } = {}) {
     if (product) {
       setTitle(product.name);
       app.innerHTML = productPage(product);
+      loadReviews();
     } else {
       setTitle("Không tìm thấy sản phẩm");
       app.innerHTML = messagePage("Không tìm thấy sản phẩm", "Sản phẩm này không tồn tại hoặc đã ngừng bán.", `<a class="button-dark" href="#products">Xem sản phẩm khác</a>`);
@@ -1026,6 +1127,20 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  const reviewHiddenButton = target.closest("[data-review-hidden]");
+  if (reviewHiddenButton) {
+    const isHidden = reviewHiddenButton.dataset.hidden === "true";
+    try {
+      await api(`/admin/reviews/${reviewHiddenButton.dataset.reviewHidden}`, { method: "PATCH", body: { isHidden } });
+      await loadCatalog();
+      await refreshAdminTab();
+      showToast(isHidden ? "Đã ẩn đánh giá" : "Đã hiện lại đánh giá");
+    } catch (error) {
+      showToast(error.message);
+    }
+    return;
+  }
+
   const categoryFormButton = target.closest("[data-category-form]");
   if (categoryFormButton) {
     openCategoryForm(categoryFormButton.dataset.categoryForm);
@@ -1122,6 +1237,15 @@ document.addEventListener("submit", async (event) => {
         }
         throw error;
       }
+    });
+  }
+
+  if (form.id === "review-form") {
+    await submitForm(form, async () => {
+      await api(`/products/${form.dataset.product}/reviews`, { method: "POST", body: { rating: Number(data.rating), comment: data.comment } });
+      await loadCatalog();
+      refreshStorePage();
+      showToast("Đã lưu đánh giá. Cảm ơn bạn!");
     });
   }
 

@@ -150,6 +150,30 @@ module.exports = function adminRoutes(db) {
     res.json({ ok: true });
   });
 
+  // ---- Đánh giá ----
+  // Quản trị viên thấy cả đánh giá đang ẩn, kèm email để liên hệ khi cần.
+  router.get("/reviews", (req, res) => {
+    const reviews = db.prepare(`
+      SELECT reviews.id, reviews.product_id AS productId, products.name AS productName,
+             users.name AS userName, users.email AS userEmail, reviews.rating, reviews.comment,
+             reviews.is_hidden AS isHidden, reviews.updated_at AS updatedAt
+      FROM reviews
+      JOIN products ON products.id = reviews.product_id
+      JOIN users ON users.id = reviews.user_id
+      ORDER BY reviews.updated_at DESC, reviews.id DESC
+    `).all().map((review) => ({ ...review, isHidden: review.isHidden === 1 }));
+    res.json({ reviews });
+  });
+
+  // Ẩn thay vì xóa, để hiện lại được nếu ẩn nhầm.
+  router.patch("/reviews/:id", (req, res) => {
+    const id = validate.id(req.params.id, "Mã đánh giá");
+    if (typeof req.body?.isHidden !== "boolean") throw new HttpError(400, "Giá trị không hợp lệ.");
+    const { changes } = db.prepare("UPDATE reviews SET is_hidden = ? WHERE id = ?").run(req.body.isHidden ? 1 : 0, id);
+    if (!changes) throw new HttpError(404, "Không tìm thấy đánh giá.");
+    res.json({ ok: true });
+  });
+
   // ---- Khách hàng ----
   router.get("/customers", (req, res) => {
     const customers = db.prepare(`

@@ -31,9 +31,16 @@ Muốn tui làm mục nào, bạn chỉ cần nhắn tên mục đó.
 - [ ] Giải thích code bằng lời đơn giản, từng file hoặc từng chức năng
 - [ ] Soạn câu hỏi hội đồng hay hỏi và đóng vai hội đồng để bạn tập trả lời
 
+## Quy trình SDD
+
+- [x] Đặc tả cho các chức năng đã có (`specs/01` đến `specs/06`), nối với bài test
+- [x] `CLAUDE.md`: dặn AI luôn làm theo spec
+- [x] Đánh giá sản phẩm: spec → plan → tasks → code và test (làm đúng SDD)
+- [ ] Thêm mục SDD vào báo cáo `Group01.docx`
+
 ## Tui làm được: thêm chức năng (không bắt buộc)
 
-- [ ] Đánh giá sản phẩm: khách đã mua được chấm sao và bình luận
+- [x] Đánh giá sản phẩm: khách đã mua được chấm sao và bình luận (`specs/10-danh-gia-san-pham/`)
 - [ ] Mã giảm giá
 - [ ] Lọc theo khoảng giá và phân trang
 - [ ] Tải ảnh sản phẩm trực tiếp trong trang quản trị

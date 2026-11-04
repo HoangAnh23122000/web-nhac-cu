@@ -294,3 +294,149 @@ test("bảo mật: danh sách khách hàng không chứa mật khẩu; lỗi JSO
   const page = await fetch(`${baseUrl}/`);
   assert.match(page.headers.get("content-security-policy"), /script-src 'self'/);
 });
+
+// ==== Đánh giá sản phẩm — tiêu chí DG-01 đến DG-11 trong specs/10-danh-gia-san-pham/spec.md ====
+
+const newProduct = (name = "Đàn để đánh giá") => Number(db.prepare(
+  "INSERT INTO products (name, category_id, brand, price, stock) VALUES (?, 1, 'Test', 3000000, 50)"
+).run(name).lastInsertRowid);
+
+const reviewsOf = (call, productId) => call("GET", `/api/products/${productId}/reviews`);
+const sendReview = (call, productId, body) => call("POST", `/api/products/${productId}/reviews`, body);
+
+async function placeOrder(call, productId) {
+  const { status, data } = await call("POST", "/api/orders", { ...shippingInfo, items: [{ productId, quantity: 1 }] });
+  assert.equal(status, 201);
+  return data.order;
+}
+
+async function moveOrder(orderId, statuses) {
+  const adminCall = await admin();
+  for (const status of statuses) {
+    assert.equal((await adminCall("PATCH", `/api/admin/orders/${orderId}`, { status })).status, 200);
+  }
+}
+
+// Khách mới, đã mua và đã nhận sản phẩm (đơn "Hoàn thành").
+async function buyer(productId) {
+  const call = await newCustomer();
+  const order = await placeOrder(call, productId);
+  await moveOrder(order.id, ["Đã xác nhận", "Đang giao", "Hoàn thành"]);
+  return call;
+}
+
+test("đánh giá: ai cũng xem được, chưa đăng nhập thì không gửi được", async () => {
+  const id = newProduct();
+  const stranger = client();
+  const { status, data } = await reviewsOf(stranger, id);
+  assert.equal(status, 200);
+  assert.deepEqual(data.summary, { average: null, count: 0 });
+  assert.deepEqual(data.reviews, []);
+  assert.deepEqual(data.me, { loggedIn: false, canReview: false, review: null });
+  assert.equal((await sendReview(stranger, id, { rating: 5 })).status, 401);
+});
+
+test("đánh giá: chỉ khách có đơn hoàn thành chứa sản phẩm mới gửi được", async () => {
+  const id = newProduct();
+  const call = await newCustomer();
+  assert.equal((await sendReview(call, id, { rating: 5 })).status, 403, "chưa mua");
+
+  const cancelled = await placeOrder(call, id);
+  await call("POST", `/api/orders/${cancelled.id}/cancel`);
+  assert.equal((await sendReview(call, id, { rating: 5 })).status, 403, "đơn đã hủy");
+
+  const order = await placeOrder(call, id);
+  await moveOrder(order.id, ["Đã xác nhận", "Đang giao"]);
+  assert.equal((await sendReview(call, id, { rating: 5 })).status, 403, "đơn đang giao");
+  assert.equal((await reviewsOf(call, id)).data.me.canReview, false);
+
+  await moveOrder(order.id, ["Hoàn thành"]);
+  assert.equal((await reviewsOf(call, id)).data.me.canReview, true);
+  const sent = await sendReview(call, id, { rating: 5, comment: "  Đàn rất êm tay  " });
+  assert.equal(sent.status, 201);
+
+  const { data } = await reviewsOf(client(), id);
+  assert.equal(data.reviews.length, 1);
+  assert.equal(data.reviews[0].userName, "Khách Test");
+  assert.equal(data.reviews[0].rating, 5);
+  assert.equal(data.reviews[0].comment, "Đàn rất êm tay");
+  assert.equal(data.reviews[0].isMine, false);
+  assert.ok(!JSON.stringify(data).includes("@test.vn"), "không lộ email người viết");
+});
+
+test("đánh giá: gửi lại thì cập nhật, không tạo thêm", async () => {
+  const id = newProduct();
+  const call = await buyer(id);
+  assert.equal((await sendReview(call, id, { rating: 4, comment: "Tốt" })).status, 201);
+  assert.equal((await sendReview(call, id, { rating: 2, comment: "Dùng lâu thì bị rè" })).status, 200);
+
+  const { data } = await reviewsOf(call, id);
+  assert.equal(data.summary.count, 1);
+  assert.equal(data.reviews[0].rating, 2);
+  assert.equal(data.reviews[0].comment, "Dùng lâu thì bị rè");
+  assert.equal(data.reviews[0].isMine, true);
+  assert.deepEqual(data.me.review, { rating: 2, comment: "Dùng lâu thì bị rè", isHidden: false });
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM reviews WHERE product_id = ?").get(id).n, 1);
+});
+
+test("đánh giá: từ chối số sao và nhận xét không hợp lệ", async () => {
+  const id = newProduct();
+  const call = await buyer(id);
+  const invalid = [{}, { rating: 0 }, { rating: 6 }, { rating: 4.5 }, { rating: "abc" }, { rating: 5, comment: "a".repeat(1001) }];
+  for (const body of invalid) assert.equal((await sendReview(call, id, body)).status, 400, JSON.stringify(body).slice(0, 40));
+  assert.equal((await sendReview(call, id, { rating: 5, comment: "a".repeat(1000) })).status, 201);
+});
+
+test("đánh giá: điểm trung bình đúng và có trong danh mục sản phẩm", async () => {
+  const id = newProduct();
+  const empty = newProduct("Đàn chưa ai đánh giá");
+  for (const rating of [5, 4, 4]) await sendReview(await buyer(id), id, { rating });
+
+  assert.deepEqual((await reviewsOf(client(), id)).data.summary, { average: 4.3, count: 3 });
+  const { products } = (await client()("GET", "/api/catalog")).data;
+  assert.deepEqual(products.find((p) => p.id === id).rating, { average: 4.3, count: 3 });
+  assert.deepEqual(products.find((p) => p.id === empty).rating, { average: null, count: 0 });
+});
+
+test("đánh giá: admin ẩn thì khách khác không thấy, sửa không tự hiện lại, khách không ẩn được", async () => {
+  const id = newProduct();
+  const good = await buyer(id);
+  const spammer = await buyer(id);
+  const viewer = client();
+  const adminCall = await admin();
+  await sendReview(good, id, { rating: 5, comment: "Rất hài lòng" });
+  await sendReview(spammer, id, { rating: 1, comment: "Liên hệ zalo để mua rẻ hơn" });
+
+  const { reviews } = (await adminCall("GET", "/api/admin/reviews")).data;
+  const spam = reviews.find((r) => r.productId === id && r.rating === 1);
+  assert.equal(spam.isHidden, false);
+  assert.equal(spam.productName, "Đàn để đánh giá");
+
+  assert.equal((await good("PATCH", `/api/admin/reviews/${spam.id}`, { isHidden: true })).status, 403, "khách không ẩn được");
+  assert.equal((await adminCall("PATCH", `/api/admin/reviews/${spam.id}`, { isHidden: "yes" })).status, 400);
+  assert.equal((await adminCall("PATCH", "/api/admin/reviews/99999", { isHidden: true })).status, 404);
+  assert.equal((await adminCall("PATCH", `/api/admin/reviews/${spam.id}`, { isHidden: true })).status, 200);
+
+  let data = (await reviewsOf(viewer, id)).data;
+  assert.deepEqual(data.summary, { average: 5, count: 1 });
+  assert.ok(data.reviews.every((r) => r.id !== spam.id));
+  assert.equal((await reviewsOf(spammer, id)).data.me.review.isHidden, true, "người viết thấy mình bị ẩn");
+
+  await sendReview(spammer, id, { rating: 3, comment: "Đã sửa" });
+  data = (await reviewsOf(viewer, id)).data;
+  assert.equal(data.summary.count, 1, "sửa đánh giá bị ẩn thì vẫn bị ẩn");
+
+  await adminCall("PATCH", `/api/admin/reviews/${spam.id}`, { isHidden: false });
+  assert.deepEqual((await reviewsOf(viewer, id)).data.summary, { average: 4, count: 2 });
+});
+
+test("đánh giá: sản phẩm ẩn hoặc không tồn tại thì báo 404", async () => {
+  const id = newProduct();
+  const call = await buyer(id);
+  await (await admin())("PATCH", `/api/admin/products/${id}/active`, { isActive: false });
+  assert.equal((await reviewsOf(call, id)).status, 404);
+  assert.equal((await sendReview(call, id, { rating: 5 })).status, 404);
+  assert.equal((await reviewsOf(call, 99999)).status, 404);
+  assert.equal((await sendReview(call, 99999, { rating: 5 })).status, 404);
+  assert.equal((await reviewsOf(call, "abc")).status, 400);
+});

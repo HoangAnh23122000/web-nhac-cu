@@ -1,6 +1,7 @@
 // Dữ liệu công khai: sản phẩm đang bán, danh mục và chính sách phí giao hàng.
 const express = require("express");
 const config = require("../config");
+const { toRating } = require("../reviews");
 
 function toProduct(row) {
   return {
@@ -16,13 +17,21 @@ function toProduct(row) {
     image: row.image,
     description: row.description,
     specs: JSON.parse(row.specs),
-    isActive: row.is_active === 1
+    isActive: row.is_active === 1,
+    rating: toRating(row.rating_average, row.rating_count)
   };
 }
 
+// Kèm điểm đánh giá trung bình, chỉ tính đánh giá đang hiển thị.
 const PRODUCT_SELECT = `
-  SELECT products.*, categories.name AS category
-  FROM products JOIN categories ON categories.id = products.category_id
+  SELECT products.*, categories.name AS category,
+         ratings.average AS rating_average, ratings.count AS rating_count
+  FROM products
+  JOIN categories ON categories.id = products.category_id
+  LEFT JOIN (
+    SELECT product_id, AVG(rating) AS average, COUNT(*) AS count
+    FROM reviews WHERE is_hidden = 0 GROUP BY product_id
+  ) AS ratings ON ratings.product_id = products.id
 `;
 
 function catalogRoutes(db) {

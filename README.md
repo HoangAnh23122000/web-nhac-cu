@@ -35,14 +35,14 @@ Sau khi chạy `npm run demo` có thêm 5 khách mẫu (ví dụ minhanh@mocmusi
 ```bash
 npm test        # chạy kiểm thử tự động
 npm run reset   # xóa toàn bộ đơn hàng, tài khoản mới và đưa dữ liệu về ban đầu
-npm run demo    # đưa về ban đầu rồi thêm 5 khách và 14 đơn hàng mẫu để trình bày
+npm run demo    # đưa về ban đầu rồi thêm 5 khách, 14 đơn hàng và 8 đánh giá mẫu để trình bày
 ```
 
 ## Chức năng
 
-**Khách hàng:** xem sản phẩm, tìm kiếm có hoặc không dấu, lọc theo danh mục và thương hiệu, sắp xếp theo giá, trang chi tiết sản phẩm, giỏ hàng, đăng ký, đăng nhập, đặt hàng COD, xem lịch sử đơn và tự hủy đơn đang chờ xác nhận.
+**Khách hàng:** xem sản phẩm, tìm kiếm có hoặc không dấu, lọc theo danh mục và thương hiệu, sắp xếp theo giá, trang chi tiết sản phẩm, giỏ hàng, đăng ký, đăng nhập, đặt hàng COD, xem lịch sử đơn và tự hủy đơn đang chờ xác nhận, chấm sao và nhận xét sản phẩm đã nhận hàng.
 
-**Quản trị viên:** thống kê từ dữ liệu thật, xử lý đơn hàng theo quy trình, thêm/sửa/ẩn sản phẩm, quản lý tồn kho, thêm/sửa/xóa danh mục, xem danh sách khách hàng.
+**Quản trị viên:** thống kê từ dữ liệu thật, xử lý đơn hàng theo quy trình, thêm/sửa/ẩn sản phẩm, quản lý tồn kho, thêm/sửa/xóa danh mục, xem danh sách khách hàng, ẩn/hiện đánh giá không phù hợp.
 
 ## Quy tắc nghiệp vụ
 
@@ -52,6 +52,7 @@ npm run demo    # đưa về ban đầu rồi thêm 5 khách và 14 đơn hàng 
 - Quy trình đơn: Chờ xác nhận → Đã xác nhận → Đang giao → Hoàn thành. Có thể hủy trước khi hoàn thành. Khách chỉ tự hủy được khi đơn còn ở "Chờ xác nhận".
 - Doanh thu chỉ tính đơn đã hoàn thành.
 - Sản phẩm được ẩn thay vì xóa, để đơn hàng cũ vẫn còn nguyên thông tin.
+- Chỉ khách có đơn "Hoàn thành" chứa sản phẩm mới được đánh giá; mỗi người một đánh giá cho mỗi sản phẩm, gửi lại thì cập nhật.
 
 ## Bảo mật
 
@@ -75,8 +76,10 @@ server/
   auth.js        Phiên đăng nhập, phân quyền
   validate.js    Kiểm tra dữ liệu đầu vào
   orders.js      Nghiệp vụ đơn hàng
+  reviews.js     Nghiệp vụ đánh giá sản phẩm
   routes/        Các đường dẫn API
 test/            Kiểm thử tự động
+specs/           Đặc tả chức năng theo quy trình SDD (xem specs/README.md)
 data/            File cơ sở dữ liệu (tự tạo khi chạy)
 ban-goc/         Bản frontend trước khi nối máy chủ
 ```

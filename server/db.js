@@ -69,9 +69,23 @@ const SCHEMA = `
     quantity     INTEGER NOT NULL CHECK (quantity > 0)
   );
 
+  -- Mỗi khách chỉ có một đánh giá cho mỗi sản phẩm. Ẩn thay vì xóa để quản trị viên hiện lại được.
+  CREATE TABLE IF NOT EXISTS reviews (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating     INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment    TEXT NOT NULL DEFAULT '',
+    is_hidden  INTEGER NOT NULL DEFAULT 0 CHECK (is_hidden IN (0, 1)),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (product_id, user_id)
+  );
+
   CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
   CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
   CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+  CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id);
 `;
 
 function openDb(dbPath) {
