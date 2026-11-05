@@ -23,17 +23,18 @@ Muốn tui làm mục nào, bạn chỉ cần nhắn tên mục đó.
 
 ## Việc của bạn khi về nhà (cần máy ở nhà hoặc Word)
 
-Báo cáo `bao-cao/Group01.docx` (còn 22 chỗ tô vàng):
+Báo cáo `bao-cao/Group01.docx` (còn 12 chỗ tô vàng):
 
 - [ ] Mở bằng Word, chuột phải vào mục lục → **Update Field → Update entire table** để có số trang
 - [ ] Lướt các trang mới xem bố cục: mục 2.11 (Bảng 2.6–2.8, Hình 2.7), mục 3.5 (Hình 3.16–3.24), mục 5.6
-- [ ] Trang bìa: tên trường, khoa, môn học, giảng viên, họ tên – MSSV từng thành viên, lớp, thành phố
-- [ ] Mục 5.1: ghi rõ đã dùng Claude trên claude.ai, Claude Code trong VS Code hay cả hai; gói miễn phí hay trả phí
-- [ ] Bảng 5.3: dán nguyên văn 5 prompt giai đoạn đầu (giao diện, máy chủ và CSDL, quản trị, review, kiểm thử) từ lịch sử trò chuyện **trên máy ở nhà**
-- [ ] Bảng 5.4: thêm lỗi nhóm tự gặp khi làm, hoặc xóa dòng tô vàng cuối bảng
-- [ ] Phụ lục: chèn ảnh chụp các cuộc trò chuyện với Claude (có thể chụp cả phiên làm SDD trong VS Code)
-- [ ] Link Google Drive (2 chỗ): dán link, hoặc xóa dòng nếu chỉ dùng GitHub
-- [ ] Mục 5.2: lý do riêng của nhóm khi chọn Claude (không bắt buộc, không có thì xóa dòng)
+- [x] Trang bìa: trường, khoa, môn học, giảng viên, họ tên – MSSV, thành phố (làm một mình nên bỏ dòng thành viên 2 và dòng Lớp)
+- [x] Mục 5.1: Claude Code chạy trong Antigravity
+- [x] Mục 5.2: bỏ dòng lý do riêng
+- [ ] **NHẮC:** Link Google Drive ở **Lời mở đầu** (link dự phòng) và **mục 3.1** (link sản phẩm): dán link, hoặc xóa dòng nếu chỉ dùng GitHub
+- [ ] Bảng 5.3: dán nguyên văn 5 prompt giai đoạn đầu (giao diện, máy chủ và CSDL, quản trị, review, kiểm thử) từ lịch sử trò chuyện **trên máy ở nhà**; dán xong thì xóa câu nhắc tô vàng ngay trên bảng
+- [ ] Bảng 5.4: thêm lỗi bạn tự gặp khi làm, hoặc xóa dòng tô vàng cuối bảng
+- [ ] Phụ lục: chèn ảnh chụp các cuộc trò chuyện với Claude (có thể chụp cả phiên làm SDD trong Antigravity)
+- [ ] Điền xong: chọn tất cả (Cmd+A) → Highlight → **No Color** để bỏ hết màu vàng
 
 Kiểm tra sản phẩm trên máy ở nhà:
 
